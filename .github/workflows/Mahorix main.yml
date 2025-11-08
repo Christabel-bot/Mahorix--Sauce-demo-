@@ -1,0 +1,54 @@
+name: Cypress Cross-Browser Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox, edge]   # Cross-browser testing
+        node-version: [18.x]
+
+    steps:
+      # 1️⃣ Checkout your project from GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Node.js and enable caching for faster installs
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # 3️⃣ Install project dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # 4️⃣ Run Cypress tests using official action
+      - name: Run Cypress tests on ${{ matrix.browser }}
+        uses: cypress-io/github-action@v6
+        with:
+          browser: ${{ matrix.browser }}
+          build: npm run build --if-present
+          start: npm start --if-present
+          wait-on: 'http://localhost:3000' # Only if you start a local app
+          runTests: true
+        env:
+          CI: true
+
+      # 5️⃣ Upload screenshots and videos even if tests fail
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts-${{ matrix.browser }}
+          path: |
+            cypress/screenshots
+            cypress/videos
