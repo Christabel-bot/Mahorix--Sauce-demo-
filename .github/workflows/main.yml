@@ -1,0 +1,25 @@
+name: Cypress Cross-Browser Tests
+
+on: [push, pull_request]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox, edge]  # Define browsers to test
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Verify Cypress Installation
+        run: npx cypress verify
+
+      - name: Run Cypress Tests on ${{ matrix.browser }}
+        run: npx cypress run --browser ${{ matrix.browser }}
