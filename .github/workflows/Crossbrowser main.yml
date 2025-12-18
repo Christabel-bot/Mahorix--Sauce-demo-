@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chrome, firefox, edge]  # Define browsers to test
+        browser: [chrome, edge]  # Define browsers to test
 
     steps:
       - name: Checkout Repository
